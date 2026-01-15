@@ -1,6 +1,6 @@
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer/Footer';
-import Providers from '../components/Providers/Providers';
+import TanStackProvider from '../components/TanStackProvider/TanStackProvider';
 import './globals.css';
 
 export default function RootLayout({ 
@@ -13,14 +13,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>
+        <TanStackProvider>
           <Header />
           <main style={{ flex: 1 }}>
             {children}
             {modal} 
           </main>
           <Footer />
-        </Providers>
+        </TanStackProvider>
       </body>
     </html>
   );
