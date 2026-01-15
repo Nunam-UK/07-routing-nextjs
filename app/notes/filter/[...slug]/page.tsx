@@ -10,13 +10,12 @@ import css from './NoteList.module.css';
 export default function NotesPage() {
   const params = useParams();
   
-  
-  const tag = params?.tag ? (Array.isArray(params.tag) ? params.tag[0] : params.tag) : 'all';
+
+  const slug = params?.slug ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : 'all';
 
   const { data: notes, isLoading, isError } = useQuery({
-    queryKey: ['notes', tag],
-    queryFn: () => fetchNotes(tag),
-    
+    queryKey: ['notes', slug], 
+    queryFn: () => fetchNotes(slug), 
     staleTime: 1000 * 60 * 5,
   });
 
@@ -36,19 +35,17 @@ export default function NotesPage() {
               <div className={css.footer}>
                 <span className={css.tag}>{note.tag}</span>
                 
-                <Link href={`/notes/preview/${note.id}`} className={css.link}>
+            
+                <Link href={`/notes/${note.id}`} className={css.link}>
                   View details
                 </Link>
               </div>
             </li>
           ))
         ) : (
-            <p>No notes found for this category.
-              
-          </p>
+          <p>No notes found for this category.</p>
         )}
       </ul>
     </div>
   );
 }
-

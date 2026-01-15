@@ -33,7 +33,7 @@ export default function NotePreview() {
             </div>
 
             <footer className={css.date}>
-              {/* Якщо у твоїх даних є createdAt, виведемо її */}
+             
               {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ''}
             </footer>
 
