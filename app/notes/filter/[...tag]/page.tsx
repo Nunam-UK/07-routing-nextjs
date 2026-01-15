@@ -43,7 +43,9 @@ export default function NotesPage() {
             </li>
           ))
         ) : (
-          <p>No notes found for this category.</p>
+            <p>No notes found for this category.
+              
+          </p>
         )}
       </ul>
     </div>
