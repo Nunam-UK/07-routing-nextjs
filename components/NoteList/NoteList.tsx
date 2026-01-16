@@ -11,24 +11,20 @@ interface NoteListProps {
 export default function NoteList({ notes }: NoteListProps) {
   return (
     <ul className={css.list}>
-      {notes.length > 0 ? (
-        notes.map((note: Note) => (
-          <li key={note.id} className={css.listItem}>
-            <div>
-              <h3 className={css.title}>{note.title}</h3>
-              <p className={css.content}>{note.content}</p>
-            </div>
+      {notes.map((note: Note) => (
+        <li key={note.id} className={css.listItem}>
+          <div className={css.noteCard}>
+            <h3 className={css.title}>{note.title}</h3>
+            <p className={css.content}>{note.content}</p>
             <div className={css.footer}>
               <span className={css.tag}>{note.tag}</span>
               <Link href={`/notes/${note.id}`} className={css.link}>
                 View details
               </Link>
             </div>
-          </li>
-        ))
-      ) : (
-        <p>No notes found for this category.</p>
-      )}
+          </div>
+        </li>
+      ))}
     </ul>
   );
 }
