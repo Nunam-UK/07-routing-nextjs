@@ -1,146 +1,103 @@
-// 'use client';
-
-// import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useState } from 'react';
-// import css from './NoteForm.module.css';
-
-// // Функція для відправки даних на твій MockAPI
-// const addNote = async (newNote: { title: string; content: string; tag: string }) => {
-//   const response = await fetch('https://69693e0a69178471522d0048.mockapi.io/notes', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ ...newNote, createdAt: new Date().toISOString() }),
-//   });
-//   if (!response.ok) throw new Error('Failed to add note');
-//   return response.json();
-// };
-
-// export default function NoteForm() {
-//   const [title, setTitle] = useState('');
-//   const [content, setContent] = useState('');
-//   const [tag, setTag] = useState('Work');
-
-//   const queryClient = useQueryClient();
-
-//   const mutation = useMutation({
-//     mutationFn: addNote,
-//     onSuccess: () => {
-//       // Оновлюємо список нотаток після успішного додавання
-//       queryClient.invalidateQueries({ queryKey: ['notes'] });
-//       setTitle('');
-//       setContent('');
-//     },
-//   });
-
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     if (!title || !content) return;
-//     mutation.mutate({ title, content, tag });
-//   };
-
-//   return (
-//     <form className={css.form} onSubmit={handleSubmit}>
-//       <div className={css.formGroup}>
-//         <label>Title</label>
-//         <input
-//           type="text"
-//           className={css.input}
-//           placeholder="Note title"
-//           value={title}
-//           onChange={(e) => setTitle(e.target.value)}
-//           required
-//         />
-//       </div>
-
-//       <div className={css.formGroup}>
-//         <label>Content</label>
-//         <textarea
-//           className={css.textarea}
-//           placeholder="Note content"
-//           rows={4}
-//           value={content}
-//           onChange={(e) => setContent(e.target.value)}
-//           required
-//         />
-//       </div>
-
-//       <div className={css.formGroup}>
-//         <label>Category (Tag)</label>
-//         <select
-//           className={css.select}
-//           value={tag}
-//           onChange={(e) => setTag(e.target.value)}
-//         >
-//           <option value="Work">Work</option>
-//           <option value="Home">Home</option>
-//           <option value="Personal">Personal</option>
-//         </select>
-//       </div>
-
-//       <div className={css.actions}>
-//         <button
-//           type="button"
-//           className={css.cancelButton}
-//           onClick={() => { setTitle(''); setContent(''); }}
-//         >
-//           Cancel
-//         </button>
-//         <button
-//           type="submit"
-//           className={css.submitButton}
-//           disabled={mutation.isPending}
-//         >
-//           {mutation.isPending ? 'Adding...' : 'Add Note'}
-//         </button>
-//       </div>
-
-//       {mutation.isError && <p className={css.error}>Something went wrong!</p>}
-//     </form>
-//   );
-// }
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import axios from 'axios'; 
 import css from './NoteForm.module.css';
 
-export default function NoteForm() {
+interface NoteFormProps {
+  onSuccess: () => void;
+}
+
+export default function NoteForm({ onSuccess }: NoteFormProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [tag, setTag] = useState('Todo'); 
+
   const queryClient = useQueryClient();
+  const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
   const mutation = useMutation({
     mutationFn: async (newNote: { title: string; content: string; tag: string }) => {
-      const res = await fetch('https://69693e0a69178471522d0048.mockapi.io/notes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newNote, createdAt: new Date().toISOString() }),
-      });
-      return res.json();
+      const { data } = await axios.post(
+        'https://69693e0a69178471522d0048.mockapi.io/notes',
+        { 
+          ...newNote, 
+          createdAt: new Date().toISOString() 
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      
       setTitle('');
       setContent('');
+      onSuccess();
     },
   });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) return;
+    mutation.mutate({ title, content, tag });
+  };
+
   return (
-    <form className={css.form} onSubmit={(e) => {
-      e.preventDefault();
-      mutation.mutate({ title, content, tag: 'Work' });
-    }}>
+    <form className={css.form} onSubmit={handleSubmit}>
+      <h3 className={css.title}>Create New Note</h3>
+      
       <div className={css.formGroup}>
-        <input className={css.input} placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
+        <input 
+          className={css.input} 
+          placeholder="Title" 
+          value={title} 
+          onChange={e => setTitle(e.target.value)} 
+          required
+        />
       </div>
+
       <div className={css.formGroup}>
-        <textarea className={css.textarea} placeholder="Content" value={content} onChange={e => setContent(e.target.value)} />
+        <textarea 
+          className={css.textarea} 
+          placeholder="Content" 
+          value={content} 
+          onChange={e => setContent(e.target.value)} 
+          required
+        />
       </div>
+
+      <div className={css.formGroup}>
+        <select 
+          className={css.select} 
+          value={tag} 
+          onChange={e => setTag(e.target.value)}
+        >
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
+        </select>
+      </div>
+
       <div className={css.actions}>
-        <button type="submit" className={css.submitButton} disabled={mutation.isPending}>
+        <button 
+          type="submit" 
+          className={css.submitButton} 
+          disabled={mutation.isPending}
+        >
           {mutation.isPending ? 'Adding...' : 'Add Note'}
         </button>
       </div>
+
+      {mutation.isError && <p className={css.error}>Failed to save note.</p>}
     </form>
   );
 }

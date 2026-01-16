@@ -1,29 +1,41 @@
-// lib/api.ts
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: string;
-}
+import axios from 'axios';
+import { Note } from '@/types/note';
+import { FetchNotesParams, FetchNotesResponse } from '@/types/api'
+
+const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
+
+const api = axios.create({
+  baseURL: 'https://69693e0a69178471522d0048.mockapi.io',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${API_TOKEN}`,
+  },
+});
 
 
-const BASE_URL = 'https://69693e0a69178471522d0048.mockapi.io/notes';
+export const fetchNotes = async ({
+  page = 1,
+  limit = 10,
+  search = '',
+  tag = 'all',
+}: FetchNotesParams): Promise<FetchNotesResponse> => {
+  const { data } = await api.get<Note[]>('/notes', {
+    params: {
+      page,
+      limit,
+      search: search || undefined,
+      tag: tag !== 'all' ? tag : undefined,
+    },
+  });
 
-export const fetchNotes = async (slug: string = 'all'): Promise<Note[]> => {
-
-  const url = (slug === 'all' || !slug) ? BASE_URL : `${BASE_URL}?tag=${slug}`;
-  
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch notes: ${response.status}`);
-  }
-  
-  return response.json();
+  return {
+    notes: data,
+    totalPages: 5, 
+  };
 };
 
+
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const response = await fetch(`${BASE_URL}/${id}`);
-  if (!response.ok) throw new Error('Note not found');
-  return response.json();
+  const { data } = await api.get<Note>(`/notes/${id}`);
+  return data;
 };
