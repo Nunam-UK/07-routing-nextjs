@@ -3,45 +3,52 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchNoteById } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Modal from '@/components/Modal/Modal';
 import css from './NotePreview.module.css';
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: string;
-  createdAt?: string;
-}
+import { Note } from '@/types/note'; 
 
 export default function NotePreviewClient({ id }: { id: string }) {
   const router = useRouter();
 
-  const { data: note, isLoading } = useQuery<Note>({
+  const { data: note, isLoading, isError } = useQuery<Note>({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
-    enabled: !!id, 
+    enabled: !!id,
+    refetchOnMount: false, 
   });
 
-  if (isLoading || !note) return null;
+  const handleClose = () => router.back();
+
+  if (isLoading) return null;
+
+  if (isError) {
+    return (
+      <Modal onClose={handleClose}>
+        <div className={css.errorContainer}>
+          <p>Помилка завантаження нотатки</p>
+          <button onClick={handleClose}>Закрити</button>
+        </div>
+      </Modal>
+    );
+  }
+
+  if (!note) return null;
 
   return (
-    <div 
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} 
-      onClick={() => router.back()}
-    >
-      <div className={css.container} onClick={(e) => e.stopPropagation()}>
-        <div className={css.item}>
-          <button className={css.backBtn} onClick={() => router.back()}>← Close</button>
-          <div className={css.header}>
-            <h2>{note.title}</h2>
-            <span className={css.tag}>{note.tag}</span>
-          </div>
-          <p className={css.content}>{note.content}</p>
-          <div className={css.date}>
-            {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'No date'}
-          </div>
+    <Modal onClose={handleClose}>
+      <div className={css.item}>
+        <button className={css.backBtn} onClick={handleClose}>
+          ← Close
+        </button>
+        <div className={css.header}>
+          <h2>{note.title}</h2>
+          <span className={css.tag}>{note.tag}</span>
+        </div>
+        <p className={css.content}>{note.content}</p>
+        <div className={css.date}>
+          {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'No date'}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

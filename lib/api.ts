@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Note } from '@/types/note';
-import { FetchNotesParams, FetchNotesResponse } from '@/types/api'
+import { FetchNotesParams, FetchNotesResponse } from '@/types/api';
 
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
@@ -12,28 +12,27 @@ const api = axios.create({
   },
 });
 
-
 export const fetchNotes = async ({
   page = 1,
   limit = 10,
   search = '',
   tag = 'all',
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
-  const { data } = await api.get<Note[]>('/notes', {
+  const { data } = await api.get<FetchNotesResponse>('/notes', {
     params: {
       page,
-      limit,
+      perPage: limit, 
       search: search || undefined,
       tag: tag !== 'all' ? tag : undefined,
     },
   });
 
+  
   return {
-    notes: data,
-    totalPages: 5, 
+    notes: data.notes,
+    totalPages: data.totalPages, 
   };
 };
-
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const { data } = await api.get<Note>(`/notes/${id}`);
