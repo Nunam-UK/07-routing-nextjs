@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import axios from 'axios'; 
+import { createNote } from '@/lib/api'; 
 import css from './NoteForm.module.css';
 
 interface NoteFormProps {
@@ -15,25 +15,11 @@ export default function NoteForm({ onSuccess }: NoteFormProps) {
   const [tag, setTag] = useState('Todo'); 
 
   const queryClient = useQueryClient();
-  const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
   const mutation = useMutation({
-    mutationFn: async (newNote: { title: string; content: string; tag: string }) => {
-      const { data } = await axios.post(
-        'https://69693e0a69178471522d0048.mockapi.io/notes',
-        { 
-          ...newNote, 
-          createdAt: new Date().toISOString() 
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      return data;
-    },
+    mutationFn: (newNote: { title: string; content: string; tag: string }) => 
+      createNote(newNote), 
+    
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       

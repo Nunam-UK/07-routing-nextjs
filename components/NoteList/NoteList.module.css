@@ -92,3 +92,30 @@
 .link:hover {
   background-color: #0b5ed7;
 }
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.deleteBtn {
+  background-color: transparent;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.deleteBtn:hover {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
