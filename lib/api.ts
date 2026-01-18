@@ -46,3 +46,4 @@ export const createNote = async (noteData: Omit<Note, 'id' | 'createdAt'>): Prom
 export const deleteNote = async (id: string): Promise<void> => {
   await api.delete(`/notes/${id}`);
 };
+console.log('API TOKEN LOADED:', !!process.env.NEXT_PUBLIC_API_TOKEN)
