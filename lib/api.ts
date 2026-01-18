@@ -18,18 +18,32 @@ export const fetchNotes = async ({
   search = '',
   tag = 'all',
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
-  const { data } = await api.get<Note[]>('/notes', {
-    params: {
-      page,
-      limit,
-      search: search || undefined,
-      tag: tag !== 'all' ? tag : undefined,
-    },
-  });
-  return {
-    notes: data,
-    totalPages: Math.ceil(20 / limit),
+
+  const queryParams = {
+    page,
+    perPage: limit, 
+    search: search || undefined,
+    tag: tag !== 'all' ? tag : undefined,
   };
+
+  try {
+    const { data } = await api.get<Note[]>('/notes', {
+      params: {
+        page: queryParams.page,
+        limit: queryParams.perPage, 
+        search: queryParams.search,
+        tag: queryParams.tag,
+      },
+    });
+
+    return {
+      notes: data,
+      totalPages: Math.ceil(20 / limit),
+    };
+  } catch (error) {
+    console.error('Fetch notes error:', error);
+    return { notes: [], totalPages: 0 };
+  }
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
