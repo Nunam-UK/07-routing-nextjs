@@ -2,32 +2,42 @@ import axios from 'axios';
 import { Note } from '@/types/note';
 import { FetchNotesParams, FetchNotesResponse, CreateNotePayload } from '@/types/api';
 
+
+const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
+
 const api = axios.create({
-  baseURL: 'https://69693e0a69178471522d0048.mockapi.io',
+  baseURL: 'https://notehub-public.goit.study/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+api.interceptors.request.use((config) => {
+  if (API_TOKEN) {
+    config.headers.Authorization = `Bearer ${API_TOKEN}`;
+  }
+  return config;
 });
 
 export const fetchNotes = async ({
   page = 1,
-  perPage = 6, 
+  perPage = 6,
   search = '',
   tag = 'all',
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
   try {
-    const { data } = await api.get<Note[]>('/notes', {
+    const { data } = await api.get<FetchNotesResponse>('/notes', {
       params: {
         page,
-        limit: perPage,
+        perPage,
         search: search.trim() || undefined,
-        tag: tag === 'all' ? undefined : tag,
+        tag: tag === 'all' ? undefined : tag.toLowerCase(),
       },
     });
 
-    const totalCount = 20; 
-    const totalPages = Math.ceil(totalCount / perPage);
-
     return {
-      notes: data,
-      totalPages: totalPages,
+      notes: data.notes,
+      totalPages: data.totalPages,
     };
   } catch (error) {
     console.error('Fetch notes error:', error);
