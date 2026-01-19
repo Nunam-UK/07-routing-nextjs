@@ -9,7 +9,7 @@ export default async function FilterPage({ params }: { params: Promise<{ slug: s
 
   await queryClient.prefetchQuery({
     queryKey: ['notes', tag, '', 1],
-    queryFn: () => fetchNotes({ tag, search: '', page: 1, limit: 6 }),
+    queryFn: () => fetchNotes({ tag, search: '', page: 1, perPage: 6 }),
   });
 
   return (

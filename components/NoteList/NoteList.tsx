@@ -7,7 +7,7 @@ import { Note } from '@/types/note';
 import css from './NoteList.module.css';
 
 interface NoteListProps {
-  notes: Note[];
+  notes: Note[]; 
 }
 
 export default function NoteList({ notes }: NoteListProps) {
@@ -16,6 +16,7 @@ export default function NoteList({ notes }: NoteListProps) {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteNote(id),
     onSuccess: () => {
+
       queryClient.invalidateQueries({ queryKey: ['notes'] });
     },
     onError: () => {
@@ -28,6 +29,11 @@ export default function NoteList({ notes }: NoteListProps) {
       deleteMutation.mutate(id);
     }
   };
+
+  // ПРАВКА: Захист від порожніх даних
+  if (!notes || notes.length === 0) {
+    return <p className={css.empty}>Нотаток не знайдено. Створіть свою першу нотатку!</p>;
+  }
 
   return (
     <ul className={css.list}>

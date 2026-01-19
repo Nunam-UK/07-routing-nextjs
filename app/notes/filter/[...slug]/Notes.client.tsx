@@ -31,7 +31,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       tag, 
       search: debouncedSearch, 
       page, 
-      limit: 6 
+      perPage: 6 
     }),
     refetchOnMount: false, 
   });

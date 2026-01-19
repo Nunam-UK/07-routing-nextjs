@@ -2,7 +2,7 @@ import { Note } from './note';
 
 export interface FetchNotesParams {
   page?: number;
-  limit?: number;
+  perPage?: number; 
   search?: string;
   tag?: string;
 }
@@ -10,4 +10,10 @@ export interface FetchNotesParams {
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
+}
+
+export interface CreateNotePayload {
+  title: string;
+  content: string;
+  tag: string;
 }
