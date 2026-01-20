@@ -2,14 +2,10 @@ import axios from 'axios';
 import { Note } from '@/types/note';
 import { FetchNotesParams, FetchNotesResponse, CreateNotePayload } from '@/types/api';
 
-
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
 const api = axios.create({
   baseURL: 'https://notehub-public.goit.study/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 api.interceptors.request.use((config) => {
@@ -26,25 +22,29 @@ export const fetchNotes = async ({
   tag = 'all',
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
   try {
+    // ВАЖЛИВА ПРАВКА: Робимо першу літеру великою, якщо це не 'all'
+    // Наприклад: 'work' -> 'Work'
+    const normalizedTag = tag === 'all' 
+      ? undefined 
+      : tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+
     const { data } = await api.get<FetchNotesResponse>('/notes', {
       params: {
         page,
         perPage,
         search: search.trim() || undefined,
-        tag: tag === 'all' ? undefined : tag.toLowerCase(),
+        tag: normalizedTag, 
       },
     });
 
-    return {
-      notes: data.notes,
-      totalPages: data.totalPages,
-    };
+    return data;
   } catch (error) {
     console.error('Fetch notes error:', error);
     return { notes: [], totalPages: 0 };
   }
 };
 
+// ... решта функцій без змін (fetchNoteById, createNote, deleteNote)
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const { data } = await api.get<Note>(`/notes/${id}`);
   return data;

@@ -20,12 +20,16 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  
+  // Скидання сторінки при зміні тегу (виправляє помилку 400 при переході між категоріями)
+  const [prevTag, setPrevTag] = useState(tag);
+  if (tag !== prevTag) {
+    setPrevTag(tag);
+    setPage(1);
+  }
+
   const debouncedSearch = useDebounce(search, 500);
 
-  
   const { data, isLoading, isError } = useQuery({
-    
     queryKey: ['notes', tag, debouncedSearch, page],
     queryFn: () => fetchNotes({ 
       tag, 
@@ -33,15 +37,13 @@ export default function NotesClient({ tag }: NotesClientProps) {
       page, 
       perPage: 6 
     }),
-    refetchOnMount: false, 
   });
 
-  if (isError) return <p className={css.error}>Error loading notes.</p>;
+  if (isError) return <p className={css.error}>Помилка завантаження нотаток.</p>;
 
   return (
     <div className={css.container}>
       <div className={css.topBar}>
-        
         <SearchBox value={search} onChange={(val) => {
           setSearch(val);
           setPage(1); 
@@ -56,9 +58,8 @@ export default function NotesClient({ tag }: NotesClientProps) {
       </div>
 
       {isLoading ? (
-        <p>Loading notes...</p>
+        <p>Завантаження...</p>
       ) : (
-       
         <NoteList notes={data?.notes || []} />
       )}
 
